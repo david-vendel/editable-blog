@@ -237,27 +237,21 @@ app.post("/articles/save/ps", (req, res) => {
     res.status(404).send("empty page");
   }
 
-  const parsedHtml = JSON.parse(req.body.parsedHtml);
+  const parsedHtml = JSON.parse(req.body.parsedHtmlJson);
+  const blockId = req.body.blockId;
 
   console.log(
     "save article:",
     req.body.page,
-    "paragraph:",
-    req.body.paragraphId,
-    "text:",
-    req.body.parsedHtml,
-    "parsedHtml",
+    "\nblock:",
+    req.body.blockId,
+    "\n\nparsedHtmlJson:",
+    req.body.parsedHtmlJson,
+    "\n\nparsedHtml",
     parsedHtml
   );
 
-  const newParagraphs = parsedHtml.map(ph => {
-    const type = ph.tagName;
-    const text = ph.children[0].content ? ph.children[0].content : "";
-    return {
-      type: type,
-      text: text
-    };
-  });
+  console.log("req.body.parsedHtmlJson", req.body.parsedHtmlJson);
 
   Article.find({ page: req.body.page }, (err, article) => {
     if (err) {
@@ -265,27 +259,22 @@ app.post("/articles/save/ps", (req, res) => {
     } else {
       try {
         console.log("article", article);
-        let paragraphs = article[0]["_doc"].paragraphs;
-        console.log("para1", paragraphs);
-        // paragraphs[req.body.paragraphId].text = req.body.text;
-        const insertionIndex = req.body.paragraphId;
-        const a = paragraphs.slice(0, insertionIndex);
-        const b = paragraphs.slice(insertionIndex + 1, paragraphs.length);
-        let result = a.concat(newParagraphs).concat(b);
+        let blocks = article[0]["_doc"].blocks;
+        console.log("blocks 1", blocks);
 
-        console.log("para2", result);
-        paragraphs = result;
-        console.log("para3", paragraphs);
+        blocks[blockId] = JSON.parse(req.body.parsedHtmlJson);
 
-        Article.update(
+        console.log("blocks 2", blocks);
+
+        Article.updateOne(
           { page: req.body.page },
-          { $set: { paragraphs: paragraphs } },
+          { $set: { blocks: blocks } },
           { new: true }
         ).then(() => {
           Article.findOne({ page: req.body.page }).then(result => {
             console.log("result", result);
           });
-          res.status(200).send("edit paragraph successfull");
+          res.status(200).send("edit block successfull");
         });
       } catch (e) {
         console.log("err", e);
@@ -322,44 +311,41 @@ app.post(
   }
 );
 
-app.post("/articles/save/:page/newParagraph", (req, res) => {
+app.post("/articles/save/:page/newBlock", (req, res) => {
   Article.find({ page: req.params.page }, (err, article) => {
     if (err) {
       console.log(err);
     } else {
-      const paragraphs = article[0]["_doc"].paragraphs;
+      const blocks = article[0]["_doc"].blocks;
 
-      paragraphs.push({
-        text: "",
-        type: "p"
-      });
+      blocks.push("");
 
       Article.update(
         { page: req.params.page },
-        { $set: { paragraphs: paragraphs } },
+        { $set: { blocks: blocks } },
         { new: true }
       ).then(() => {
-        res.status(200).send("add paragraph successfull");
+        res.status(200).send("add block successfull");
       });
     }
   });
 });
 
-app.post("/articles/delete/:page/paragraph/:paragraphId", (req, res) => {
+app.post("/articles/delete/:page/block/:blockId", (req, res) => {
   Article.find({ page: req.params.page }, (err, article) => {
     if (err) {
       console.log(err);
     } else {
-      const paragraphs = article[0]["_doc"].paragraphs;
+      const blocks = article[0]["_doc"].blocks;
 
-      paragraphs.splice(req.params.paragraphId, 1);
+      blocks.splice(req.params.blockId, 1);
 
       Article.update(
         { page: req.params.page },
-        { $set: { paragraphs: paragraphs } },
+        { $set: { blocks: blocks } },
         { new: true }
       ).then(() => {
-        res.status(200).send("delete paragraph successfull");
+        res.status(200).send("delete block successfull");
       });
     }
   });

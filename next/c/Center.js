@@ -24,7 +24,7 @@ const Center = (props) => {
             <Page
                 pageUrl={props.pageUrl}
                 pageTitle={props.pageTitle}
-                paragraphs={props.paragraphs}
+                blocks={props.blocks}
             />
         </Wrapper>
     )

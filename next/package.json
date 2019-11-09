@@ -13,7 +13,8 @@
     "next": "latest",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
-    "styled-components": "^4.0.0"
+    "styled-components": "^4.0.0",
+    "react-html-parser": "^2.0.2"
   },
   "license": "ISC"
 }
