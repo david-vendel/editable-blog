@@ -29,7 +29,7 @@ const Post = (props) => {
                         pageUrl={props.pageUrl}
                         breadcrumps={props.breadcrumps}
                         pageTitle={props.pageTitle}
-                        paragraphs={props.paragraphs}
+                        blocks={props.blocks}
                     />
                     <Right/>
                 </div>
@@ -40,18 +40,23 @@ const Post = (props) => {
 
 Post.getInitialProps = async function(context) {
     const { id } = context.query;
+    if (id === "favicon.ico") {
+        return null
+    }
     console.log("id", id);
+
     let data;
     let foundPage = globalData.find(gd => {
         return gd.page === id
     });
     if (foundPage) {
         data = foundPage;
-        console.log("cachec",data)
+        // console.log("cachec",data)
     } else {
         console.log("else",);
         try{
             const res = await fetch(`http://localhost:8000/articles/${id}`);
+            // console.log("res",res)
             data = await res.json();
         } catch(e) {
             console.log("api is fucked", e.code)
@@ -69,7 +74,7 @@ Post.getInitialProps = async function(context) {
         pageTitle: data.page,
         breadcrumps: data.breadcrumps,
         leftMenu: ['Transport', 'Hotels', 'Museums', 'Facts', 'Sights', 'Activities', 'Entertainment'],
-        paragraphs:data.paragraphs,
+        blocks:data.blocks,
         header: HEADER
     };
 };

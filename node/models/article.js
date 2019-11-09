@@ -25,6 +25,10 @@ let articleSchema = mongoose.Schema({
     type: Array,
     required: false
   },
+  blocks: {
+    type: Array,
+    required: false
+  },
   breadcrumps: {
     type: Array,
     required: false
